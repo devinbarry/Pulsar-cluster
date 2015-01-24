@@ -31,6 +31,17 @@ def _git_status(virtual_env_dir, repo_folder_name='devbackend'):
         run('git status')
 
 
+def _git_pull(virtual_env_dir, repo_folder_name='devbackend', branch='develop'):
+    """
+    Run 'git status' on the git folder on the server
+    :param virtual_env_dir: directory path to the virtual env on the server
+    :param repo_folder_name: name for the top level folder of the new repo
+    :return: None
+    """
+    with cd('{}/{}'.format(virtual_env_dir, repo_folder_name)):
+        run('git pull origin {}'.format(branch))
+
+
 S01 = 'root@104.236.35.196'
 S02 = 'root@104.236.47.137'
 S03 = 'root@104.236.17.228'
@@ -63,3 +74,16 @@ def get_git_status():
     :return: None
     """
     _git_status(VIRTUAL_ENV_DIR)
+
+
+@task()
+@hosts(S01, S02, S03, S04, S05, S06, RABBIT_MQ)
+def git_pull(branch=None):
+    """
+    Does a 'git pull origin <branch>' for each of the servers in the cluster. fab git_pull:branch='release/3.0'
+    :return: None
+    """
+    if branch:
+        _git_pull(VIRTUAL_ENV_DIR, branch=branch)
+    else:
+        _git_pull(VIRTUAL_ENV_DIR)
