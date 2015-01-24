@@ -46,8 +46,13 @@ VIRTUAL_ENV_DIR = '/opt/apps/Swizly-3.0-env'
 def setup(branch=None):
     """
     Setup the git repo on all servers in the cluster.  fab setup | fab setup:branch='release/3.0'
+    :param branch: optional argument for the git branch to checkout
+    :return: None
     """
-    _fresh_clone_repo(VIRTUAL_ENV_DIR)
+    if branch:
+        _fresh_clone_repo(VIRTUAL_ENV_DIR, tag=branch)
+    else:
+        _fresh_clone_repo(VIRTUAL_ENV_DIR)
 
 
 @task()
@@ -55,6 +60,6 @@ def setup(branch=None):
 def get_git_status():
     """
     Returns the output of 'git status' for each of the servers in the cluster.
-    :return:
+    :return: None
     """
     _git_status(VIRTUAL_ENV_DIR)
