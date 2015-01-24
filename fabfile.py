@@ -33,13 +33,26 @@ def _git_status(virtual_env_dir, repo_folder_name='devbackend'):
 
 def _git_pull(virtual_env_dir, repo_folder_name='devbackend', branch='develop'):
     """
-    Run 'git status' on the git folder on the server
+    Run 'git pull origin <branch>' on the git folder on the server
     :param virtual_env_dir: directory path to the virtual env on the server
     :param repo_folder_name: name for the top level folder of the new repo
+    :param branch: The name of the branch to pull
     :return: None
     """
     with cd('{}/{}'.format(virtual_env_dir, repo_folder_name)):
         run('git pull origin {}'.format(branch))
+
+
+def _git_checkout(virtual_env_dir, repo_folder_name='devbackend', branch='develop'):
+    """
+    Run 'git checkout <branch>' on the git folder on the server
+    :param virtual_env_dir: directory path to the virtual env on the server
+    :param repo_folder_name: name for the top level folder of the new repo
+    :param branch: The name of the branch to pull
+    :return: None
+    """
+    with cd('{}/{}'.format(virtual_env_dir, repo_folder_name)):
+        run('git checkout {}'.format(branch))
 
 
 S01 = 'root@104.236.35.196'
@@ -87,3 +100,16 @@ def git_pull(branch=None):
         _git_pull(VIRTUAL_ENV_DIR, branch=branch)
     else:
         _git_pull(VIRTUAL_ENV_DIR)
+
+
+@task()
+@hosts(S01, S02, S03, S04, S05, S06, RABBIT_MQ)
+def git_checkout(branch=None):
+    """
+    Does a 'git checkout <branch>' for each of the servers in the cluster. fab git_checkout:branch='release/3.0'
+    :return: None
+    """
+    if branch:
+        _git_checkout(VIRTUAL_ENV_DIR, branch=branch)
+    else:
+        _git_checkout(VIRTUAL_ENV_DIR)
