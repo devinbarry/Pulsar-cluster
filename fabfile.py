@@ -5,10 +5,11 @@ from fabric.decorators import task, hosts
 from fabric.operations import run
 
 
-def fresh_clone_repo(virtual_env_dir, repo_folder_name='devbackend', tag='develop'):
+def _fresh_clone_repo(virtual_env_dir, repo_folder_name='devbackend', tag='develop'):
     """
     Clone the git repo and checkout the correct tag.
-    :param virtual_env_dir: name for the top level folder of the new repo
+    :param virtual_env_dir: directory path to the virtual env on the server
+    :param repo_folder_name: name for the top level folder of the new repo
     :param tag: name of the tag/branch to checkout
     :return: None
     """
@@ -19,19 +20,41 @@ def fresh_clone_repo(virtual_env_dir, repo_folder_name='devbackend', tag='develo
             run('git checkout {0}'.format(tag))
 
 
+def _git_status(virtual_env_dir, repo_folder_name='devbackend'):
+    """
+    Run 'git status' on the git folder on the server
+    :param virtual_env_dir: directory path to the virtual env on the server
+    :param repo_folder_name: name for the top level folder of the new repo
+    :return: None
+    """
+    with cd('{}/{}'.format(virtual_env_dir, repo_folder_name)):
+        run('git status')
+
+
 S01 = 'root@104.236.35.196'
 S02 = 'root@104.236.47.137'
 S03 = 'root@104.236.17.228'
 S04 = 'root@104.131.108.12'
 S05 = 'root@104.131.166.166'
 S06 = 'root@104.236.107.132'
-RabbitMQ = 'root@104.236.86.150'
+RABBIT_MQ = 'root@104.236.86.150'
+VIRTUAL_ENV_DIR = '/opt/apps/Swizly-3.0-env'
 
 
 @task(default=True)
-@hosts(S01, S02, S03, S04, S05, S06, RabbitMQ)
+@hosts(S01, S02, S03, S04, S05, S06, RABBIT_MQ)
 def setup(branch=None):
-    """ Setup the git repo on all servers in the cluster.  fab setup | fab setup:branch='release/3.0'
     """
-    virtual_env_dir = '/opt/apps/Swizly-3.0-env'
-    fresh_clone_repo(virtual_env_dir)
+    Setup the git repo on all servers in the cluster.  fab setup | fab setup:branch='release/3.0'
+    """
+    _fresh_clone_repo(VIRTUAL_ENV_DIR)
+
+
+@task()
+@hosts(S01, S02, S03, S04, S05, S06, RABBIT_MQ)
+def get_git_status():
+    """
+    Returns the output of 'git status' for each of the servers in the cluster.
+    :return:
+    """
+    _git_status(VIRTUAL_ENV_DIR)
