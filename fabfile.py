@@ -81,9 +81,9 @@ def setup(branch=None):
 
 @task()
 @hosts(S01, S02, S03, S04, S05, S06, RABBIT_MQ)
-def get_git_status():
+def git_status():
     """
-    Returns the output of 'git status' for each of the servers in the cluster.
+    Does 'git status' for each of the servers in the cluster.
     :return: None
     """
     _git_status(VIRTUAL_ENV_DIR)
