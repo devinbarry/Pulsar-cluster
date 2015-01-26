@@ -58,13 +58,13 @@ def _git_reset_hard(virtual_env_dir, repo_folder_name='devbackend', branch=None)
             run('git reset --hard')
 
 
-def _git_checkout(virtual_env_dir, options=None, repo_folder_name='devbackend', branch='develop'):
+def _git_checkout(virtual_env_dir, repo_folder_name='devbackend', branch='develop', options=None):
     """
     Run 'git checkout <branch>' on the git folder on the server
     :param virtual_env_dir: directory path to the virtual env on the server
-    :param options: options for the checkout command eg. '-f'
     :param repo_folder_name: name for the top level folder of the new repo
     :param branch: The name of the branch to checkout
+    :param options: options for the checkout command eg. '-f'
     :return: None
     """
     with cd('{}/{}'.format(virtual_env_dir, repo_folder_name)):
@@ -74,12 +74,12 @@ def _git_checkout(virtual_env_dir, options=None, repo_folder_name='devbackend', 
             run('git checkout {}'.format(branch))
 
 
-def _git_fetch(virtual_env_dir, options=None, repo_folder_name='devbackend'):
+def _git_fetch(virtual_env_dir, repo_folder_name='devbackend', options=None):
     """
     Run 'git checkout <branch>' on the git folder on the server
     :param virtual_env_dir: directory path to the virtual env on the server
-    :param options: options for the fetch command eg. '--all'
     :param repo_folder_name: name for the top level folder of the new repo
+    :param options: options for the fetch command eg. '--all'
     :return: None
     """
     with cd('{}/{}'.format(virtual_env_dir, repo_folder_name)):
@@ -144,9 +144,9 @@ def git_checkout(options=None, branch=None):
     :return: None
     """
     if branch:
-        _git_checkout(VIRTUAL_ENV_DIR, options, branch=branch)
+        _git_checkout(VIRTUAL_ENV_DIR, branch=branch, options=options)
     else:
-        _git_checkout(VIRTUAL_ENV_DIR, options)
+        _git_checkout(VIRTUAL_ENV_DIR, options=options)
 
 
 @task()
@@ -170,4 +170,4 @@ def git_fetch(options=None):
     Does a 'git fetch <options>' for each of the servers in the cluster. fab git_fetch:options='--all'
     :return: None
     """
-    _git_fetch(VIRTUAL_ENV_DIR, options)
+    _git_fetch(VIRTUAL_ENV_DIR, options=options)
