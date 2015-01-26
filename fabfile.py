@@ -74,6 +74,21 @@ def _git_checkout(virtual_env_dir, options=None, repo_folder_name='devbackend', 
             run('git checkout {}'.format(branch))
 
 
+def _git_fetch(virtual_env_dir, options=None, repo_folder_name='devbackend'):
+    """
+    Run 'git checkout <branch>' on the git folder on the server
+    :param virtual_env_dir: directory path to the virtual env on the server
+    :param options: options for the fetch command eg. '--all'
+    :param repo_folder_name: name for the top level folder of the new repo
+    :return: None
+    """
+    with cd('{}/{}'.format(virtual_env_dir, repo_folder_name)):
+        if options:
+            run('git fetch {}'.format(options))
+        else:
+            run('git fetch')
+
+
 S01 = 'root@104.236.35.196'
 S02 = 'root@104.236.47.137'
 S03 = 'root@104.236.17.228'
@@ -146,3 +161,13 @@ def git_reset(branch=None, hard=True):
         _git_reset_hard(VIRTUAL_ENV_DIR, branch=branch)
     else:
         print('Not supported')
+
+
+@task()
+@hosts(S01, S02, S03, S04, S05, S06, RABBIT_MQ)
+def git_fetch(options=None):
+    """
+    Does a 'git fetch <options>' for each of the servers in the cluster. fab git_fetch:options='--all'
+    :return: None
+    """
+    _git_fetch(VIRTUAL_ENV_DIR, options)
