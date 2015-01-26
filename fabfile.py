@@ -43,15 +43,19 @@ def _git_pull(virtual_env_dir, repo_folder_name='devbackend', branch='develop'):
         run('git pull origin {}'.format(branch))
 
 
-def _git_reset_hard(virtual_env_dir, repo_folder_name='devbackend'):
+def _git_reset_hard(virtual_env_dir, repo_folder_name='devbackend', branch=None):
     """
     Run 'git reset --hard' on the git folder on the server
     :param virtual_env_dir: directory path to the virtual env on the server
     :param repo_folder_name: name for the top level folder of the new repo
+    :param branch: The name of the branch to reset to
     :return: None
     """
     with cd('{}/{}'.format(virtual_env_dir, repo_folder_name)):
-        run('git reset --hard')
+        if branch:
+            run('git reset --hard {}'.format(branch))
+        else:
+            run('git reset --hard')
 
 
 def _git_checkout(virtual_env_dir, options=None, repo_folder_name='devbackend', branch='develop'):
@@ -60,7 +64,7 @@ def _git_checkout(virtual_env_dir, options=None, repo_folder_name='devbackend', 
     :param virtual_env_dir: directory path to the virtual env on the server
     :param options: options for the checkout command eg. '-f'
     :param repo_folder_name: name for the top level folder of the new repo
-    :param branch: The name of the branch to pull
+    :param branch: The name of the branch to checkout
     :return: None
     """
     with cd('{}/{}'.format(virtual_env_dir, repo_folder_name)):
@@ -132,13 +136,13 @@ def git_checkout(options=None, branch=None):
 
 @task()
 @hosts(S01, S02, S03, S04, S05, S06, RABBIT_MQ)
-def git_reset(hard=True):
+def git_reset(branch=None, hard=True):
     """
-    Does a 'git reset' for each of the servers in the cluster. fab git_reset:hard='False'
+    Does a 'git reset' for each of the servers in the cluster. fab git_reset:branch='origin/develop',hard='False'
     :return: None
     """
     # TODO there is a bug here right now with the translation to boolean. Fix later
     if hard:
-        _git_reset_hard(VIRTUAL_ENV_DIR)
+        _git_reset_hard(VIRTUAL_ENV_DIR, branch=branch)
     else:
         print('Not supported')
