@@ -43,6 +43,17 @@ def _git_pull(virtual_env_dir, repo_folder_name='devbackend', branch='develop'):
         run('git pull origin {}'.format(branch))
 
 
+def _git_reset_hard(virtual_env_dir, repo_folder_name='devbackend'):
+    """
+    Run 'git reset --hard' on the git folder on the server
+    :param virtual_env_dir: directory path to the virtual env on the server
+    :param repo_folder_name: name for the top level folder of the new repo
+    :return: None
+    """
+    with cd('{}/{}'.format(virtual_env_dir, repo_folder_name)):
+        run('git reset --hard')
+
+
 def _git_checkout(virtual_env_dir, repo_folder_name='devbackend', branch='develop'):
     """
     Run 'git checkout <branch>' on the git folder on the server
@@ -113,3 +124,17 @@ def git_checkout(branch=None):
         _git_checkout(VIRTUAL_ENV_DIR, branch=branch)
     else:
         _git_checkout(VIRTUAL_ENV_DIR)
+
+
+@task()
+@hosts(S01, S02, S03, S04, S05, S06, RABBIT_MQ)
+def git_reset(hard=True):
+    """
+    Does a 'git reset' for each of the servers in the cluster. fab git_reset:hard='False'
+    :return: None
+    """
+    # TODO there is a bug here right now with the translation to boolean. Fix later
+    if hard:
+        _git_reset_hard(VIRTUAL_ENV_DIR)
+    else:
+        print('Not supported')
